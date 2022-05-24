@@ -37,17 +37,8 @@ public class AppVertx {
         HttpServer httpServer = vertx.createHttpServer();
 
         Router router = Router.router(vertx);
-        Route handler1 = router
-                .get("/welcome/:name")
-                .handler(routingContext -> {
-                    String name = routingContext.request().getParam("name");
-                    HttpServerResponse response = routingContext.response();
-                    response.setChunked(true);
-                    response.write("Welcome " + name + "!" + "\n");
-                    response.end();
-                });
         Route handler2 = router
-                .post("/hello")
+                .post("/spell")
                 .consumes("*/json")
                 .handler(BodyHandler.create())
                 .handler(routingContext -> {
