@@ -9,7 +9,6 @@ public class SpellCheckDTO {
     private String status;
     private String message;
     private List<String> suggestion;
-    private List<String> error;
 
     public String getCode() {
         return code;
@@ -41,14 +40,6 @@ public class SpellCheckDTO {
 
     public void setSentence(String sentence) {
         this.sentence = sentence;
-    }
-
-    public List<String> getError() {
-        return error;
-    }
-
-    public void setError(List<String> error) {
-        this.error = error;
     }
 
     public String getStatus() {

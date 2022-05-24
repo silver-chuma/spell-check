@@ -1,18 +1,13 @@
 package com.app.spellcheck;
 
+import com.app.spellcheck.service.SpellingService;
 import constants.ResponseStatus;
 import dto.SpellCheckDTO;
-import org.languagetool.JLanguageTool;
-import org.languagetool.language.AmericanEnglish;
-import org.languagetool.rules.RuleMatch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.vertx.java.core.json.JsonObject;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -20,7 +15,7 @@ import java.util.List;
 public class SpellingCheckerController {
 
     @Autowired
-    AppVerticle appVerticle;
+    SpellingService spellingService;
 
 
     @RequestMapping(value = {"/spell_check"},
@@ -33,42 +28,16 @@ public class SpellingCheckerController {
 
         spellCheckDTO.setSentence(spellCheck.getSentence());
 
-        JLanguageTool langTool = new JLanguageTool(new AmericanEnglish());
+        String dictFound = spellingService.checkSpellingInDictionary(spellCheck.getSentence()) ? "FOUND" : "NOT_FOUND";
+        List<String> suggestion = spellingService.suggestSimilarWords(spellCheck.getSentence());
 
-        List<RuleMatch> matches = null;
-        try {
-            matches = langTool.check(spellCheck.getSentence());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String message = "";
-        List <String> suggestion = new ArrayList<>();
-        List <String> error = new ArrayList<>();
-
-        for (RuleMatch match : matches) {
-            error.add("Potential error exists at line " +
-                    match.getEndLine() + ", column " +
-                    match.getColumn() + " : " + match.getMessage());
-
-            System.out.println("Suggested correction: " +
-                    match.getSuggestedReplacements());
-
-            message = match.getMessage();
-            if(!match.getSuggestedReplacements().isEmpty()){
-                match.getSuggestedReplacements().forEach(item->{
-                  suggestion.add("Please add: " + item);
-                });
-            }
-        }
-
-        spellCheckDTO.setError(error);
         spellCheckDTO.setSuggestion(suggestion);
-        if(error.isEmpty()){
+        if(dictFound.equalsIgnoreCase("FOUND")){
             spellCheckDTO.setMessage("Looks nice :)");
             spellCheckDTO.setCode(ResponseStatus.CORRECT.getCode());
             spellCheckDTO.setStatus(ResponseStatus.CORRECT.getMessage());
         }else{
-            spellCheckDTO.setMessage(message);
+            spellCheckDTO.setMessage("Words not found in dictionary!");
             spellCheckDTO.setCode(ResponseStatus.NOT_CORRECT.getCode());
             spellCheckDTO.setStatus(ResponseStatus.NOT_CORRECT.getMessage());
         }
