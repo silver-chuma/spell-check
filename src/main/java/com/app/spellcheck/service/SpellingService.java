@@ -1,18 +1,16 @@
 package com.app.spellcheck.service;
 
-import org.springframework.stereotype.Service;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
 public class SpellingService {
 
-    private Set<String> words = new HashSet<>();
+    private static Set<String> words = new HashSet<>();
 
     public SpellingService() {
+        System.out.println("Init Dictionary...");
         ClassLoader cl = getClass().getClassLoader();
         try {
             BufferedReader reader = new BufferedReader(
@@ -23,7 +21,7 @@ public class SpellingService {
         }
     }
 
-    public boolean checkSpellingInDictionary(String word) {
+    public static boolean checkSpellingInDictionary(String word) {
         if (word != null) {
             return words.contains(word.toLowerCase());
         } else {
@@ -31,7 +29,7 @@ public class SpellingService {
         }
     }
 
-    public List<String> suggestSimilarWords(String word) {
+    public static List<String> suggestSimilarWords(String word) {
         List<String> suggestedWords = Optional.ofNullable(
                 words.stream().filter(w -> (w.indexOf(word) >= 0 && w.lastIndexOf(word) >= 0)).collect(Collectors.toList())
         ).orElse(Collections.emptyList());
